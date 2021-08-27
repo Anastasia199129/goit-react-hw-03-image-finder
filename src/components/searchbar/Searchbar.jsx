@@ -1,5 +1,9 @@
+import React from 'react';
+// import { toast } from 'react-toastify';
 import { Component } from 'react';
 import s from './searchbar.module.css';
+
+// https://pixabay.com/api/?q=${value}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12
 
 class Searchbar extends Component {
   state = {
@@ -7,12 +11,24 @@ class Searchbar extends Component {
   };
 
   onChangeHandler = e => {
-    this.setState({ value: e.currentTarget.value });
+    this.setState({ value: e.currentTarget.value.toLowerCase() });
   };
 
   onSubmitForm = e => {
     e.preventDefault();
-    this.props.onSubmit(this.state.value);
+    if (this.state.value.trim() === '') {
+      alert('заполните поле ввода');
+      return;
+    }
+    this.props.onSubmit(this.state);
+    this.setState({ page: 0 });
+    this.reset();
+  };
+
+  reset = () => {
+    this.setState({
+      value: '',
+    });
   };
 
   render() {
@@ -27,6 +43,7 @@ class Searchbar extends Component {
             onChange={this.onChangeHandler}
             className={s.SearchFormInput}
             type="text"
+            value={this.state.value}
             autoComplete="off"
             autoFocus
             placeholder="Search images and photos"
