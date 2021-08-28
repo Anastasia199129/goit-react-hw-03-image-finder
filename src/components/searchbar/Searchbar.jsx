@@ -21,7 +21,6 @@ class Searchbar extends Component {
       return;
     }
     this.props.onSubmit(this.state);
-    this.setState({ page: 0 });
     this.reset();
   };
 
