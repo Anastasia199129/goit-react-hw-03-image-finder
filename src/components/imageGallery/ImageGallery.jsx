@@ -4,15 +4,17 @@ import React from 'react';
 import { Component } from 'react';
 import axios from 'axios';
 import Button from '../button/Button';
+import Modal from '../modal/Modal';
 
 const API_KEY = '22334770-5fe06baa3562bf01c1a6f3fbc';
 
 class ImageGallery extends Component {
   state = {
     images: null,
-    page: '1',
+    page: null,
     error: '',
     loading: false,
+    showModal: false,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -20,7 +22,9 @@ class ImageGallery extends Component {
       this.setState({ page: 1 });
       axios
         .get(
-          `https://pixabay.com/api/?q=${this.props.imageName}&page=${this.state.page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`,
+          `https://pixabay.com/api/?q=${this.props.imageName}&page=${[
+            this.state.page,
+          ]}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`,
         )
 
         .then(response => {
@@ -37,32 +41,51 @@ class ImageGallery extends Component {
 
   onButtonClick = () => {
     this.setState(prevState => ({
-      page: [prevState] + 1,
+      page: prevState.page + 1,
     }));
-
     axios
       .get(
         `https://pixabay.com/api/?q=${this.props.imageName}&page=${this.state.page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`,
       )
-
       .then(response => {
         if (response.status === 200) {
-          this.setState({ images: response.data.hits });
+          this.setState(prevState => ({
+            images: [...response.data.hits, ...prevState.images],
+          }));
+          console.log(this.state.page);
         }
         if (response.status === 400) {
           this.setState({ eror: 'картинки по вашему зыпросу не найдены' });
         }
       })
       .catch(error => console.error(error));
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
+  };
+
+  togleModal = () => {
+    this.setState(state => ({ showModal: !state.showModal }));
+  };
+
+  onClickItem = e => {
+    console.log(e);
+    this.togleModal();
   };
 
   render() {
     return (
       <section>
         <ul className={s.ImageGallery}>
-          {Array.isArray(this.state.images) && <ImageGalleryItem imagesAray={this.state.images} />}
+          {Array.isArray(this.state.images) && (
+            <ImageGalleryItem imagesAray={this.state.images} onClick={this.onClickItem} />
+          )}
         </ul>
         {Array.isArray(this.state.images) && <Button onClick={this.onButtonClick} />}
+        {this.state.showModal && (
+          <Modal onClose={this.togleModal} imagesArray={this.state.imageName} />
+        )}
       </section>
     );
   }

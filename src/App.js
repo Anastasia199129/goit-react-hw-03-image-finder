@@ -5,8 +5,6 @@ import ImageGallery from './components/imageGallery/ImageGallery';
 
 // import { ToastContainer } from 'react-toastify';
 
-// import Modal from './components/modal/Modal';
-
 class App extends Component {
   state = {
     imageName: '',
@@ -20,9 +18,6 @@ class App extends Component {
       <div>
         <Searchbar onSubmit={this.onSubmithandler} />
         <ImageGallery imageName={this.state.imageName} />
-        {/* <ToastContainer autoClose={3000} /> */}
-
-        {/* <Modal /> */}
       </div>
     );
   }
