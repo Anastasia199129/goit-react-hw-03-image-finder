@@ -1,3 +1,4 @@
+import React from 'react';
 import { Component } from 'react';
 import s from './imageGalleryItem.module.css';
 

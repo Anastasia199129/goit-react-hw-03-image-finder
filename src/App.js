@@ -17,6 +17,7 @@ class App extends Component {
     return (
       <div>
         <Searchbar onSubmit={this.onSubmithandler} />
+
         <ImageGallery imageName={this.state.imageName} />
       </div>
     );
