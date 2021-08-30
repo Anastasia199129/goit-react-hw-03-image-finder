@@ -1,8 +1,8 @@
 import React from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import PropTypes from 'prop-types';
+import { toast } from 'react-toastify';
 import { Component } from 'react';
-import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
-import Loader from 'react-loader-spinner';
+import LoaderHearts from '../loader/Loader';
 import s from './searchbar.module.css';
 import axios from 'axios';
 import Button from '../button/Button';
@@ -12,9 +12,17 @@ import Modal from '../modal/Modal';
 
 const API_KEY = '22334770-5fe06baa3562bf01c1a6f3fbc';
 
-// https://pixabay.com/api/?q=${value}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12
-
 class Searchbar extends Component {
+  static propTypes = {
+    value: PropTypes.string,
+    images: PropTypes.array,
+    page: PropTypes.number,
+    searchValue: PropTypes.string,
+    loading: PropTypes.bool,
+    showModal: PropTypes.bool,
+    largeImeges: PropTypes.string,
+  };
+
   state = {
     value: '',
     images: [],
@@ -22,11 +30,11 @@ class Searchbar extends Component {
     searchValue: '',
     loading: false,
     showModal: false,
+    largeImeges: '',
   };
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.page !== this.state.page) {
-      console.log(prevState.page, this.state.page);
       if (prevState.value !== this.state.value) {
         this.setState({
           loading: true,
@@ -48,7 +56,6 @@ class Searchbar extends Component {
                 behavior: 'smooth',
               });
             }
-            console.log(this.state.page);
           }
           if (response.status === 400) {
             this.setState({ eror: 'картинки по вашему зыпросу не найдены' });
@@ -61,24 +68,18 @@ class Searchbar extends Component {
   onSubmitForm = e => {
     e.preventDefault();
     if (this.state.value.trim() === '') {
-      toast.error('🦄 Заполните поле поиска!', {
-        position: 'top-center',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        progress: undefined,
-      });
-      // alert('заполните поле ввода');
+      toast.warn('Заполните поле поиска!');
       return;
     }
 
     if (this.state.value !== this.state.searchValue) {
       this.setState({ page: 1, images: [] });
     }
+
     this.setState({ searchValue: this.state.value });
-    console.log(this.state.value);
-    console.log(this.state.searchValue);
+    this.setState({
+      loading: true,
+    });
 
     axios
       .get(
@@ -88,8 +89,10 @@ class Searchbar extends Component {
         console.log(response);
         if (response.status === 200) {
           this.setState({ images: response.data.hits });
-          console.log(this.state.images);
         }
+        this.setState({
+          loading: false,
+        });
         if (response.status === 400) {
           this.setState({ eror: 'картинки по вашему зыпросу не найдены' });
         }
@@ -119,8 +122,7 @@ class Searchbar extends Component {
   };
 
   onItemClick = e => {
-    console.log(e);
-
+    this.setState({ largeImeges: e });
     this.togleModal();
   };
 
@@ -144,8 +146,7 @@ class Searchbar extends Component {
             />
           </form>
         </header>
-        {this.state.loading && <Loader type="Hearts" color="#00BFFF" height={80} width={80} />}
-        <ToastContainer />
+        {this.state.loading && <LoaderHearts />}
         {this.state.images.length !== 0 && (
           <ImageGallery arrayImages={this.state.images}>
             <ImageGalleryItem imagesAray={this.state.images} onClick={this.onItemClick} />
@@ -154,7 +155,7 @@ class Searchbar extends Component {
 
         {this.state.images.length !== 0 && <Button text="Load more" onClick={this.onButtonClick} />}
         {this.state.showModal && (
-          <Modal onClose={this.togleModal} imagesArray={this.state.imageName} />
+          <Modal onClose={this.togleModal} modalImg={this.state.largeImeges} />
         )}
       </section>
     );
