@@ -89,6 +89,9 @@ class Searchbar extends Component {
         console.log(response);
         if (response.status === 200) {
           this.setState({ images: response.data.hits });
+          if (this.state.images.length === 0) {
+            toast.error('По такому запросу картинки не найденны!');
+          }
         }
         this.setState({
           loading: false,
